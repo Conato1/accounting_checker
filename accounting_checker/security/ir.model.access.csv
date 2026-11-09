@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_accounting_audit_manager,accounting.audit.manager,model_accounting_audit,account.group_account_manager,1,1,1,1
+access_accounting_audit_line_manager,accounting.audit.line.manager,model_accounting_audit_line,account.group_account_manager,1,1,1,1
+access_accounting_audit_user,accounting.audit.user,model_accounting_audit,account.group_account_user,1,0,0,0
+access_accounting_audit_line_user,accounting.audit.line.user,model_accounting_audit_line,account.group_account_user,1,0,0,0

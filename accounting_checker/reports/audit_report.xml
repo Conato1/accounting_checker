@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_accounting_audit" model="ir.actions.report">
+            <field name="name">Audit Findings Report</field>
+            <field name="model">accounting.audit</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">accounting_checker.report_audit_document</field>
+            <field name="report_file">accounting_checker.report_audit_document</field>
+            <field name="print_report_name">'Audit Report - %s' % object.name</field>
+            <field name="binding_model_id" ref="model_accounting_audit"/>
+            <field name="binding_type">report</field>
+            </record>
+
+        <template id="report_audit_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <h2><span t-field="o.name"/></h2>
+                                    <div class="text-muted">
+                                        Audit Date: <span t-field="o.date_audit"/><br/>
+                                        Auditor: <span t-field="o.user_id"/>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body p-3">
+                                            <h3 class="mb-0">
+                                                Health Score: 
+                                                <span t-field="o.integrity_score" 
+                                                      t-options='{"widget": "float", "precision": 0}'/>%
+                                            </h3>
+                                            <span t-if="o.integrity_score == 0" class="text-danger fw-bold">FATAL DATA CORRUPTION</span>
+                                            <span t-elif="o.integrity_score &lt; 80" class="text-danger">CRITICAL ISSUES FOUND</span>
+                                            <span t-elif="o.integrity_score == 100" class="text-success">HEALTHY DATA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3 mb-3">
+                                <div class="col-12">
+                                    <strong>Total Issues Found: </strong> <span t-field="o.error_count"/> records.
+                                </div>
+                            </div>
+
+                            <table class="table table-sm table-striped mt-4" style="font-size: 11px;">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 8%;">Severity</th>
+                                        <th style="width: 12%;">Error Type</th>
+                                        <th style="width: 25%;">Description</th>
+                                        <th style="width: 10%;">Trans. Date</th>
+                                        <th style="width: 15%;">Created By</th>
+                                        <th style="width: 15%;">Partner</th>
+                                        <th style="width: 15%;">Related Record</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.severity" 
+                                                  t-att-class="'badge bg-danger' if line.severity == 'critical' else 'badge bg-warning text-dark' if line.severity == 'warning' else 'badge bg-info'"/>
+                                        </td>
+                                        <td><span t-field="line.error_type"/></td>
+                                        <td><span t-field="line.name"/></td>
+                                        
+                                        <td>
+                                            <span t-if="line.record_date" t-field="line.record_date"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </td>
+                                        <td>
+                                            <div t-if="line.move_creator_id">
+                                                <span t-field="line.move_creator_id.name"/>
+                                            </div>
+                                            <span t-else="" class="text-muted">System/Unknown</span>
+                                        </td>
+                                        <td>
+                                            <span t-if="line.partner_id" t-field="line.partner_id.name"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </td>
+                                        
+                                        <td>
+                                            <span t-field="line.res_model"/> / <span t-field="line.res_id"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="footer mt-5 text-center text-muted" style="font-size: 10px;">
+                                <p>Generated by Odoo Accounting Data Integrity Checker | Confidential Audit Report</p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_accounting_audit_line_tree" model="ir.ui.view">
+            <field name="name">accounting.audit.line.tree</field>
+            <field name="model">accounting.audit.line</field>
+            <field name="arch" type="xml">
+                <list string="Audit Details" create="0" delete="0" decoration-danger="severity=='critical'" decoration-warning="severity=='warning'">
+                    <field name="severity" widget="badge" decoration-danger="severity=='critical'" decoration-warning="severity=='warning'"/>
+                    <field name="error_type"/>
+                    
+                    <field name="record_date" optional="show"/>
+                    
+                    <field name="move_creator_id" widget="many2one_avatar_user" string="Created By" optional="show"/>
+                    
+                    <field name="partner_id" optional="show"/>
+                    
+                    <field name="name"/>
+                    
+                    <field name="create_date" string="Detected On" widget="datetime" optional="hide"/>
+                    
+                    <button name="action_view_record" type="object" icon="fa-arrow-right" string=" Inspect" class="btn-link"/>
+                    <field name="is_ignored" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_accounting_audit_form" model="ir.ui.view">
+            <field name="name">accounting.audit.form</field>
+            <field name="model">accounting.audit</field>
+            <field name="arch" type="xml">
+                <form string="Accounting Audit">
+                    <header>
+                        <button name="action_start_scan" string="Start Scan" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                        <button name="action_start_scan" string="Re-Scan" type="object" class="btn-secondary" invisible="state != 'done'"/>
+                        
+                        <button name="%(action_report_accounting_audit)d" string="Print PDF Report" type="action" icon="fa-print" invisible="state != 'done'"/>
+                        <button name="action_export_excel" string="Export Excel" type="object" icon="fa-file-excel-o" class="btn-success" invisible="state != 'done'"/>
+                        
+                        <field name="state" widget="statusbar" statusbar_visible="draft,scanning,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        
+                        <group col="3">
+                            
+                            <group string="Audit Parameters">
+                                <field name="target_start_date"/>
+                                <field name="target_end_date"/>
+                            </group>
+                            
+                            <group string="Results">
+                                <field name="integrity_score" widget="progressbar"/>
+                                <field name="error_count"/>
+                                <field name="user_id"/>
+                                <field name="date_audit"/>
+                            </group>
+
+                            <group string="Audit Legend">
+                                <div class="text-muted" style="font-size: 11px;">
+                                    <p class="mb-1">
+                                        <span class="badge bg-danger">CRITICAL</span><br/>
+                                        Fatal error (e.g., Ghost Invoice, Unbalanced). 
+                                        Requires immediate IT fix.
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="badge bg-warning text-dark">WARNING</span><br/>
+                                        Suspicious activity (e.g., Sequence Gap, Weekend Entry). 
+                                        Needs Manager review.
+                                    </p>
+                                    <p class="mb-0">
+                                        <b>Score &lt; 80%:</b> Database is unhealthy.
+                                    </p>
+                                </div>
+                            </group>
+
+                        </group>
+
+                        <notebook>
+                            <page string="Issues Found">
+                                <field name="line_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_accounting_audit_tree" model="ir.ui.view">
+            <field name="name">accounting.audit.tree</field>
+            <field name="model">accounting.audit</field>
+            <field name="arch" type="xml">
+                <list decoration-muted="state=='cancelled'">
+                    <field name="name"/>
+                    <field name="date_audit"/>
+                    <field name="integrity_score" widget="progressbar"/>
+                    <field name="state" widget="badge" decoration-success="state=='done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_accounting_audit" model="ir.actions.act_window">
+            <field name="name">Data Integrity Checker</field>
+            <field name="res_model">accounting.audit</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="menu_audit_compliance_root" name="Audit &amp; Compliance" parent="account.menu_finance_reports" sequence="100"/>
+        <menuitem id="menu_accounting_audit" name="Data Integrity Checker" parent="menu_audit_compliance_root" action="action_accounting_audit" sequence="10"/>
+
+    </data>
+</odoo>

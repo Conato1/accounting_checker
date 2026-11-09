@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form_audit" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.audit</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="90"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Audit &amp; Compliance" string="Audit &amp; Compliance" name="accounting_checker">
+                        <block title="Automation &amp; Notification" name="audit_automation_setting">
+                            <setting string="Daily Auto Scan" help="Automatically scan for errors every night (01:00 AM).">
+                                <field name="audit_auto_scan"/>
+                                <div class="content-group" invisible="not audit_auto_scan">
+                                    <div class="text-muted mt8">
+                                        System will send email alert to Accounting Managers if critical issues are found.
+                                    </div>
+                                </div>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_audit_config_settings" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'accounting_checker'}</field>
+        </record>
+
+        <menuitem id="menu_audit_configuration"
+                  name="Configuration"
+                  parent="menu_audit_compliance_root"
+                  sequence="100"/>
+
+        <menuitem id="menu_audit_settings"
+                  name="Settings"
+                  parent="menu_audit_configuration"
+                  action="action_audit_config_settings"
+                  sequence="10"/>
+    </data>
+</odoo>
